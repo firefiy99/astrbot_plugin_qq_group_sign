@@ -1,0 +1,35 @@
+{
+  "enabled": {
+    "description": "是否启用每天自动QQ群签到",
+    "type": "bool",
+    "default": true
+  },
+  "platform_id": {
+    "description": "AstrBot 平台 ID（多 QQ 账号时填写）",
+    "type": "string",
+    "hint": "留空时自动使用第一个 aiocqhttp 平台；多账号时填写负责白名单群签到的 QQ 平台配置 ID",
+    "default": ""
+  },
+  "sign_hour": {
+    "description": "每天执行群签到的小时（本机时间，0-23）",
+    "type": "int",
+    "default": 8
+  },
+  "sign_minute": {
+    "description": "每天执行群签到的分钟（0-59）",
+    "type": "int",
+    "default": 0
+  },
+  "retry_window_minutes": {
+    "description": "到达签到时间后允许自动重试的分钟数；成功后当日不再重复，范围 0-120",
+    "type": "int",
+    "default": 10
+  },
+  "group_whitelist": {
+    "description": "允许自动签到的QQ群号白名单。可用英文逗号、中文逗号、空格或换行分隔；留空时不对任何群签到",
+    "type": "text",
+    "hint": "例如：123456789, 987654321",
+    "obvious_hint": true,
+    "default": ""
+  }
+}

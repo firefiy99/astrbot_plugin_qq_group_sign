@@ -1,0 +1,11 @@
+name: astrbot_plugin_qq_group_sign
+display_name: QQ群自动签到
+desc: 每天在指定时间为白名单内的QQ群执行群打卡，支持当前群手动签到、失败重试和结果查询。
+short_desc: 白名单QQ群定时及手动打卡
+help: 使用 /群签到 手动签到，使用 /群签到帮助 查看完整说明。
+author: 小星萤
+version: 1.1.2
+repo: "https://github.com/firefiy99/astrbot_plugin_qq_group_sign"
+support_platforms:
+  - aiocqhttp
+astrbot_version: ">=4.16,<5"
