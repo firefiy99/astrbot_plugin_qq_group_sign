@@ -4,7 +4,7 @@ desc: 每天在指定时间（北京时间）为白名单内的QQ群执行群打
 short_desc: 白名单QQ群定时及手动打卡
 help: 使用 /群签到 手动签到，使用 /群签到帮助 查看完整说明。
 author: 小星萤
-version: 1.2.0
+version: 1.3.0
 repo: https://github.com/firefiy99/astrbot_plugin_qq_group_sign
 support_platforms:
   - aiocqhttp
