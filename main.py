@@ -8,9 +8,10 @@ import asyncio
 import inspect
 import json
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
@@ -20,6 +21,20 @@ from astrbot.core.utils.astrbot_path import get_astrbot_data_path
 PLUGIN_NAME = "astrbot_plugin_qq_group_sign"
 DATA_DIR = Path(get_astrbot_data_path()) / "plugin_data" / PLUGIN_NAME
 STATE_PATH = DATA_DIR / "state.json"
+
+# 签到时间统一按北京时间执行，避免容器内时区为 UTC 时（如 AstrBot Docker
+# 镜像默认 /etc/localtime -> Etc/UTC）导致 0 点被当成 UTC 0 点、实际在北京
+# 时间早上 8 点才执行的问题。
+try:
+    LOCAL_TZ = ZoneInfo("Asia/Shanghai")
+except Exception:
+    # 部分精简镜像缺少 tzdata，退化为固定 UTC+8。
+    LOCAL_TZ = timezone(timedelta(hours=8))
+
+
+def _now() -> datetime:
+    """返回带 Asia/Shanghai 时区信息的当前时间。"""
+    return datetime.now(LOCAL_TZ)
 
 
 class QQGroupSignPlugin(Star):
@@ -186,13 +201,13 @@ class QQGroupSignPlugin(Star):
                 logger.exception(
                     f"[qq_group_sign] 定时检查异常，将在下一分钟重试: {exc}"
                 )
-            now = datetime.now()
+            now = _now()
             await asyncio.sleep(max(1, 60 - now.second))
 
     async def _scheduled_tick(self):
         if not self.enabled or not self.group_whitelist:
             return
-        now = datetime.now()
+        now = _now()
         target = now.replace(
             hour=self.sign_hour, minute=self.sign_minute, second=0, microsecond=0
         )
@@ -220,7 +235,7 @@ class QQGroupSignPlugin(Star):
     ) -> dict[str, tuple[bool, str]]:
         """为白名单群签到；自动执行时按计划日期避免重复。"""
         async with self._run_lock:
-            today = schedule_date or datetime.now().strftime("%Y-%m-%d")
+            today = schedule_date or _now().strftime("%Y-%m-%d")
             results: dict[str, tuple[bool, str]] = {}
             for group_id in sorted(self.group_whitelist, key=int):
                 if not manual and self._signed_today(group_id, today):
@@ -228,7 +243,7 @@ class QQGroupSignPlugin(Star):
                     continue
                 ok, message = await self._call_group_sign(group_id)
                 results[group_id] = (ok, message)
-                now_text = datetime.now().isoformat(sep=" ", timespec="seconds")
+                now_text = _now().isoformat(sep=" ", timespec="seconds")
                 record = self._state.setdefault("groups", {}).setdefault(group_id, {})
                 record["last_attempt_at"] = now_text
                 record["last_success"] = ok
@@ -323,7 +338,7 @@ class QQGroupSignPlugin(Star):
     @filter.command("群签到状态", alias={"自动群签到状态"})
     async def sign_status(self, event: AstrMessageEvent):
         """查看自动群签到配置及最近执行结果。"""
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = _now().strftime("%Y-%m-%d")
         lines = [
             "🗓️ QQ 群自动签到状态",
             f"总开关：{'开启' if self.enabled else '关闭'}",
@@ -368,13 +383,13 @@ class QQGroupSignPlugin(Star):
             self._bot = bot
         async with self._run_lock:
             ok, message = await self._call_group_sign(group_id)
-            now_text = datetime.now().isoformat(sep=" ", timespec="seconds")
+            now_text = _now().isoformat(sep=" ", timespec="seconds")
             record = self._state.setdefault("groups", {}).setdefault(group_id, {})
             record["last_attempt_at"] = now_text
             record["last_success"] = ok
             record["last_message"] = message[:500]
             if ok:
-                record["success_date"] = datetime.now().strftime("%Y-%m-%d")
+                record["success_date"] = _now().strftime("%Y-%m-%d")
                 record["last_success_at"] = now_text
             await self._save_state()
 

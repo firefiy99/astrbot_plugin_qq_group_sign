@@ -11,12 +11,12 @@
     "default": ""
   },
   "sign_hour": {
-    "description": "每天执行群签到的小时（本机时间，0-23）",
+    "description": "每天执行群签到的小时（北京时间，0-23）",
     "type": "int",
     "default": 8
   },
   "sign_minute": {
-    "description": "每天执行群签到的分钟（0-59）",
+    "description": "每天执行群签到的分钟（北京时间，0-59）",
     "type": "int",
     "default": 0
   },
