@@ -136,3 +136,4 @@ astrbot_plugin_qq_group_sign/
 
 - **修复：定时签到时间偏移 8 小时的问题**。插件之前按服务器/容器本机时间调度，而 AstrBot Docker 容器默认运行在 UTC 时区，导致配置 0:00 实际在北京时间 8:00 才执行。现在插件统一按**北京时间（Asia/Shanghai）**调度，不再受部署环境时区影响；缺少 tzdata 的精简镜像会自动回退到固定 UTC+8。
 - 配置说明与文档同步标注为北京时间。
+- metadata.yaml 补充 `repo` 字段（指向本仓库），符合 AstrBot 插件市场规范。

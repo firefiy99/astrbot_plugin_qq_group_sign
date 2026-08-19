@@ -5,7 +5,7 @@ short_desc: 白名单QQ群定时及手动打卡
 help: 使用 /群签到 手动签到，使用 /群签到帮助 查看完整说明。
 author: 小星萤
 version: 1.2.0
-repo: ""
+repo: https://github.com/firefiy99/astrbot_plugin_qq_group_sign
 support_platforms:
   - aiocqhttp
 astrbot_version: ">=4.16,<5"
